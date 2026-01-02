@@ -6,15 +6,17 @@ import { connectSocket } from '../store/socket';
 const Chat = () => {
     const [text, setText] = useState('');
     const [username, setUsername] = useState('');
+    const [password, setPassword] = useState('');
+
     const [joined, setJoined] = useState(false);
 
     const messages = useSelector(state => state.messages);
     const dispatch = useDispatch();
 
     const handleJoin = () => {
-        if (!username.trim()) return;
+        if (!username.trim() && !username.trim()) return;
 
-        connectSocket(username, dispatch);
+        connectSocket(username, password, dispatch);
         setJoined(true);
     };
 
@@ -34,6 +36,14 @@ const Chat = () => {
                     value={username}
                     onChange={(e) => setUsername(e.target.value)}
                 />
+                <p>      </p>
+                <input
+                    placeholder="Enter Password"
+                    value={password}
+                    onChange={(e) => setPassword(e.target.value)}
+                />
+                <p> Password: supersecret     </p>
+
                 <button onClick={handleJoin}>Join</button>
             </div>
         );
