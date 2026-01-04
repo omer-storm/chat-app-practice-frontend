@@ -1,3 +1,7 @@
 export const SEND_MESSAGE = 'SEND_MESSAGE';
 export const RECEIVE_MESSAGE = 'RECEIVE_MESSAGE';
 export const SOCKET_CONNECTED = 'SOCKET_CONNECTED';
+export const TYPING_START = 'TYPING_START';
+export const TYPING_STOP = 'TYPING_STOP';
+export const USER_TYPING = 'USER_TYPING';
+export const USER_STOP_TYPING = 'USER_STOP_TYPING';

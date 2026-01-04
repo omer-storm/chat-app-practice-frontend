@@ -11,6 +11,7 @@ const Chat = () => {
     const [joined, setJoined] = useState(false);
 
     const messages = useSelector(state => state.messages);
+    const typingUsers = useSelector(state => state.typingUsers);
     const dispatch = useDispatch();
 
     const handleJoin = () => {
@@ -26,6 +27,15 @@ const Chat = () => {
             setText('');
         }
     };
+
+    const handleFocus = () => {
+        dispatch({ type: 'TYPING_START' });
+    };
+
+    const handleBlur = () => {
+        dispatch({ type: 'TYPING_STOP' });
+    };
+
 
     if (!joined) {
         return (
@@ -62,9 +72,18 @@ const Chat = () => {
                 ))}
             </div>
 
+            {typingUsers.map((u) => (
+                <div key={u.socketId}>
+                    <em>{u.username} is typing...</em>
+                </div>
+            ))}
+
+
             <input
                 value={text}
                 onChange={(e) => setText(e.target.value)}
+                onFocus={handleFocus}
+                onBlur={handleBlur}
                 placeholder="Type a message"
             />
             <button onClick={handleSend}>Send</button>

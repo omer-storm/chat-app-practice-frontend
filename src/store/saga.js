@@ -1,7 +1,7 @@
 import { eventChannel } from 'redux-saga';
 import { take, call, put, fork } from 'redux-saga/effects';
-import { receiveMessage } from './actions';
-import { SEND_MESSAGE, SOCKET_CONNECTED } from './actionTypes';
+import { receiveMessage, userTyping, userStopTyping } from './actions';
+import { SEND_MESSAGE, SOCKET_CONNECTED, TYPING_START, TYPING_STOP } from './actionTypes';
 import { getSocket } from './socket';
 
 
@@ -12,16 +12,29 @@ function createSocketChannel() {
         console.log('Socket channel created');
 
         socket.on('receive_message', (message) => {
-            console.log('Received message from server:', message);
+            console.log('Received message:', message);
             emit(receiveMessage(message));
+        });
+
+        socket.on('user_typing', (data) => {
+            console.log('User typing:', data);
+            emit(userTyping(data));
+        });
+
+        socket.on('user_stop_typing', (data) => {
+            console.log('User stopped typing:', data);
+            emit(userStopTyping(data));
         });
 
         return () => {
             console.log('Socket channel closed');
             socket.off('receive_message');
+            socket.off('user_typing');
+            socket.off('user_stop_typing');
         };
     });
 }
+
 
 function* listenForMessages() {
     console.log('listenForMessages saga started, waiting for SOCKET_CONNECTED...');
@@ -54,8 +67,33 @@ function* sendMessageSaga() {
     }
 }
 
+function* typingSaga() {
+    yield take(SOCKET_CONNECTED);
+    const socket = getSocket();
+
+    while (true) {
+        yield take(TYPING_START);
+        socket.emit('typing_start');
+        console.log('typing_start emitted');
+    }
+}
+
+function* stopTypingSaga() {
+    yield take(SOCKET_CONNECTED);
+    const socket = getSocket();
+
+    while (true) {
+        yield take(TYPING_STOP);
+        socket.emit('typing_stop');
+        console.log('typing_stop emitted');
+    }
+}
+
+
 
 export default function* rootSaga() {
     yield fork(listenForMessages);
     yield fork(sendMessageSaga);
+    yield fork(typingSaga);
+    yield fork(stopTypingSaga);
 }
