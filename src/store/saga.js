@@ -67,25 +67,19 @@ function* sendMessageSaga() {
     }
 }
 
-function* typingSaga() {
+function* typingFlowSaga() {
     yield take(SOCKET_CONNECTED);
     const socket = getSocket();
 
     while (true) {
-        yield take(TYPING_START);
-        socket.emit('typing_start');
-        console.log('typing_start emitted');
-    }
-}
-
-function* stopTypingSaga() {
-    yield take(SOCKET_CONNECTED);
-    const socket = getSocket();
-
-    while (true) {
-        yield take(TYPING_STOP);
-        socket.emit('typing_stop');
-        console.log('typing_stop emitted');
+        const action = yield take([TYPING_START, TYPING_STOP]);
+        if (action.type === TYPING_START) {
+            socket.emit('typing_start');
+            console.log('typing_start emitted');
+        } else {
+            socket.emit('typing_stop');
+            console.log('typing_stop emitted');
+        }
     }
 }
 
@@ -94,6 +88,5 @@ function* stopTypingSaga() {
 export default function* rootSaga() {
     yield fork(listenForMessages);
     yield fork(sendMessageSaga);
-    yield fork(typingSaga);
-    yield fork(stopTypingSaga);
+    yield fork(typingFlowSaga);
 }
