@@ -2,17 +2,26 @@ import React, { useState } from 'react';
 import { useDispatch, useSelector } from 'react-redux';
 import { sendMessage } from '../store/actions';
 import { connectSocket } from '../store/socket';
+import EmojiPicker from 'emoji-picker-react';
+
 
 const Chat = () => {
     const [text, setText] = useState('');
     const [username, setUsername] = useState('');
     const [password, setPassword] = useState('');
+    const [showPicker, setShowPicker] = useState(false);
+
 
     const [joined, setJoined] = useState(false);
 
     const messages = useSelector(state => state.messages);
     const typingUsers = useSelector(state => state.typingUsers);
     const dispatch = useDispatch();
+
+    const onEmojiClick = (emojiData) => {
+        setText(prev => prev + emojiData.emoji);
+        setShowPicker(false);
+    };
 
     const handleJoin = () => {
         if (!username.trim() && !username.trim()) return;
@@ -77,15 +86,16 @@ const Chat = () => {
                     <em>{u.username} is typing...</em>
                 </div>
             ))}
-
-
-            <input
-                value={text}
-                onChange={(e) => setText(e.target.value)}
-                onFocus={handleFocus}
-                onBlur={handleBlur}
-                placeholder="Type a message"
-            />
+            <div>
+                <input
+                    value={text}
+                    onChange={(e) => setText(e.target.value)}
+                    onFocus={handleFocus}
+                    onBlur={handleBlur}
+                    placeholder="Type a message"
+                />            <button onClick={() => setShowPicker(!showPicker)}>😀</button>
+                {showPicker && <EmojiPicker onEmojiClick={onEmojiClick} />}
+            </div>
             <button onClick={handleSend}>Send</button>
         </div>
     );
